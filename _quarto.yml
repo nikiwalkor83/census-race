@@ -7,6 +7,8 @@ website:
     left:
       - href: index.qmd
         text: Home
+      - href: analysis.qmd
+        text: Income & Education
       - about.qmd
 
 format:

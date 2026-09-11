@@ -72,3 +72,44 @@ fl_race_all <- bind_rows(
 )
 
 write_rds(fl_race_all, "data/fl_race_2000_2020.rds")
+
+# -------------------------------------------------------------
+# 2022 5-Year ACS Tract Data: Income, Education, and Race
+# -------------------------------------------------------------
+acs_vars <- c(
+  med_income = "B19013_001",
+  pop_25plus = "B15003_001",
+  bachelors  = "B15003_022",
+  masters    = "B15003_023",
+  prof       = "B15003_024",
+  doc        = "B15003_025",
+  tot_pop    = "B03002_001",
+  white      = "B03002_003",
+  black      = "B03002_004",
+  asian      = "B03002_006",
+  hispanic   = "B03002_012"
+)
+
+fl_tracts_raw <- get_acs(
+  geography = "tract",
+  variables = acs_vars,
+  state = "FL",
+  year = 2022,
+  output = "wide",
+  geometry = TRUE
+)
+
+fl_tracts_acs <- fl_tracts_raw |>
+  st_transform(4326) |>
+  mutate(
+    med_income   = med_incomeE,
+    pct_bachelor = round(100 * (bachelorsE + mastersE + profE + docE) / pop_25plusE, 1),
+    pct_white    = round(100 * whiteE / tot_popE, 1),
+    pct_black    = round(100 * blackE / tot_popE, 1),
+    pct_asian    = round(100 * asianE / tot_popE, 1),
+    pct_hispanic = round(100 * hispanicE / tot_popE, 1)
+  ) |>
+  select(GEOID, NAME, med_income, pct_bachelor, pct_white, pct_black, pct_asian, pct_hispanic, geometry)
+
+write_rds(fl_tracts_acs, "data/fl_tracts_acs.rds")
+

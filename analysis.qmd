@@ -1,0 +1,234 @@
+---
+title: "Income, Education, and Race Across Florida Census Tracts"
+---
+
+```{r}
+#| label: setup
+#| message: false
+#| warning: false
+#| echo: false
+
+library(tidyverse)
+library(sf)
+library(leaflet)
+library(htmltools)
+library(scales)
+
+# Load preprocessed 2022 5-Year ACS tract data
+fl_tracts <- read_rds("data/fl_tracts_acs.rds")
+
+# Prepare hover tooltip labels
+labels <- sprintf(
+  "<strong>%s</strong><br/>
+   Median Household Income: %s<br/>
+   Bachelor's Degree or Higher: %s%%<br/>
+   <hr style='margin: 4px 0;'/>
+   Hispanic / Latino: %s%%<br/>
+   White: %s%%<br/>
+   Black: %s%%<br/>
+   Asian: %s%%",
+  fl_tracts$NAME,
+  ifelse(is.na(fl_tracts$med_income), "Data unavailable", dollar(fl_tracts$med_income)),
+  ifelse(is.na(fl_tracts$pct_bachelor), "N/A", fl_tracts$pct_bachelor),
+  ifelse(is.na(fl_tracts$pct_hispanic), "N/A", fl_tracts$pct_hispanic),
+  ifelse(is.na(fl_tracts$pct_white), "N/A", fl_tracts$pct_white),
+  ifelse(is.na(fl_tracts$pct_black), "N/A", fl_tracts$pct_black),
+  ifelse(is.na(fl_tracts$pct_asian), "N/A", fl_tracts$pct_asian)
+) |> lapply(HTML)
+
+# Color palettes for each variable
+pal_income   <- colorNumeric("YlGnBu", domain = fl_tracts$med_income, na.color = "#d9d9d9")
+pal_bachelor <- colorNumeric("Purples", domain = fl_tracts$pct_bachelor, na.color = "#d9d9d9")
+pal_hispanic <- colorNumeric("YlOrRd", domain = fl_tracts$pct_hispanic, na.color = "#d9d9d9")
+pal_black    <- colorNumeric("PuRd", domain = fl_tracts$pct_black, na.color = "#d9d9d9")
+pal_asian    <- colorNumeric("Greens", domain = fl_tracts$pct_asian, na.color = "#d9d9d9")
+pal_white    <- colorNumeric("Blues", domain = fl_tracts$pct_white, na.color = "#d9d9d9")
+```
+
+## Geographic Patterns Across Florida Census Tracts
+
+The interactive map below allows you to explore how median household income, educational attainment, and racial/ethnic compositions vary across Florida's census tracts.
+
+Use the radio buttons in the top-right corner to toggle layers. Hover over any census tract to inspect its specific figures.
+
+```{r}
+#| label: interactive-tract-map
+#| message: false
+#| warning: false
+#| echo: false
+
+leaflet(fl_tracts, width = "100%", height = "560px") |>
+  addProviderTiles(providers$Esri.WorldGrayCanvas) |>
+  addPolygons(
+    group = "Median Household Income",
+    fillColor = ~pal_income(med_income),
+    fillOpacity = 0.7, weight = 0.4, color = "#666666",
+    label = labels,
+    highlightOptions = highlightOptions(weight = 2, color = "#111111", bringToFront = TRUE)
+  ) |>
+  addPolygons(
+    group = "% Bachelor's Degree+",
+    fillColor = ~pal_bachelor(pct_bachelor),
+    fillOpacity = 0.7, weight = 0.4, color = "#666666",
+    label = labels,
+    highlightOptions = highlightOptions(weight = 2, color = "#111111", bringToFront = TRUE)
+  ) |>
+  addPolygons(
+    group = "% Hispanic / Latino",
+    fillColor = ~pal_hispanic(pct_hispanic),
+    fillOpacity = 0.7, weight = 0.4, color = "#666666",
+    label = labels,
+    highlightOptions = highlightOptions(weight = 2, color = "#111111", bringToFront = TRUE)
+  ) |>
+  addPolygons(
+    group = "% Black",
+    fillColor = ~pal_black(pct_black),
+    fillOpacity = 0.7, weight = 0.4, color = "#666666",
+    label = labels,
+    highlightOptions = highlightOptions(weight = 2, color = "#111111", bringToFront = TRUE)
+  ) |>
+  addPolygons(
+    group = "% Asian",
+    fillColor = ~pal_asian(pct_asian),
+    fillOpacity = 0.7, weight = 0.4, color = "#666666",
+    label = labels,
+    highlightOptions = highlightOptions(weight = 2, color = "#111111", bringToFront = TRUE)
+  ) |>
+  addPolygons(
+    group = "% White",
+    fillColor = ~pal_white(pct_white),
+    fillOpacity = 0.7, weight = 0.4, color = "#666666",
+    label = labels,
+    highlightOptions = highlightOptions(weight = 2, color = "#111111", bringToFront = TRUE)
+  ) |>
+  addLayersControl(
+    baseGroups = c(
+      "Median Household Income",
+      "% Bachelor's Degree+",
+      "% Hispanic / Latino",
+      "% Black",
+      "% Asian",
+      "% White"
+    ),
+    options = layersControlOptions(collapsed = FALSE)
+  )
+```
+
+---
+
+## Comparing Race/Ethnicity with Household Income
+
+The scatterplots below examine how tract-level racial and ethnic compositions correlate with median household income across Florida census tracts. Each point represents one tract, and the blue line shows the linear trend.
+
+```{r}
+#| label: income-scatterplots
+#| message: false
+#| warning: false
+#| echo: false
+#| fig-width: 10
+#| fig-height: 4.5
+
+# Drop geometry and prepare data for plotting
+tract_data <- fl_tracts |>
+  st_drop_geometry() |>
+  drop_na(med_income, pct_bachelor, pct_hispanic, pct_black, pct_asian)
+
+income_long <- tract_data |>
+  select(med_income, pct_hispanic, pct_black, pct_asian) |>
+  pivot_longer(
+    cols = c(pct_hispanic, pct_black, pct_asian),
+    names_to = "group",
+    values_to = "pct"
+  ) |>
+  mutate(
+    group = case_match(
+      group,
+      "pct_hispanic" ~ "% Hispanic / Latino",
+      "pct_black"    ~ "% Black",
+      "pct_asian"    ~ "% Asian"
+    )
+  )
+
+ggplot(income_long, aes(x = pct, y = med_income)) +
+  geom_point(alpha = 0.2, color = "#2c3e50", size = 1.2) +
+  geom_smooth(method = "lm", formula = y ~ x, color = "#2980b9", se = FALSE, linewidth = 1) +
+  facet_wrap(~group, scales = "free_x") +
+  scale_y_continuous(labels = dollar_format()) +
+  scale_x_continuous(labels = label_percent(scale = 1)) +
+  labs(
+    title = "Tract-Level Race/Ethnicity vs. Median Household Income",
+    subtitle = "U.S. Census Bureau, 2018–2022 5-Year ACS (Florida)",
+    x = "Demographic Group (% of Tract Population)",
+    y = "Median Household Income"
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(
+    strip.text = element_text(face = "bold", size = 11),
+    plot.title = element_text(face = "bold")
+  )
+```
+
+---
+
+## Comparing Race/Ethnicity with Educational Attainment
+
+The scatterplots below examine the relationship between demographic compositions and educational attainment, measured as the percentage of adults age 25 and older with a bachelor's degree or higher.
+
+```{r}
+#| label: education-scatterplots
+#| message: false
+#| warning: false
+#| echo: false
+#| fig-width: 10
+#| fig-height: 4.5
+
+edu_long <- tract_data |>
+  select(pct_bachelor, pct_hispanic, pct_black, pct_asian) |>
+  pivot_longer(
+    cols = c(pct_hispanic, pct_black, pct_asian),
+    names_to = "group",
+    values_to = "pct"
+  ) |>
+  mutate(
+    group = case_match(
+      group,
+      "pct_hispanic" ~ "% Hispanic / Latino",
+      "pct_black"    ~ "% Black",
+      "pct_asian"    ~ "% Asian"
+    )
+  )
+
+ggplot(edu_long, aes(x = pct, y = pct_bachelor)) +
+  geom_point(alpha = 0.2, color = "#34495e", size = 1.2) +
+  geom_smooth(method = "lm", formula = y ~ x, color = "#8e44ad", se = FALSE, linewidth = 1) +
+  facet_wrap(~group, scales = "free_x") +
+  scale_y_continuous(labels = label_percent(scale = 1)) +
+  scale_x_continuous(labels = label_percent(scale = 1)) +
+  labs(
+    title = "Tract-Level Race/Ethnicity vs. Educational Attainment",
+    subtitle = "Share of adults age 25+ with a bachelor's degree or higher vs. demographic percentage",
+    x = "Demographic Group (% of Tract Population)",
+    y = "Adults with Bachelor's Degree or Higher"
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(
+    strip.text = element_text(face = "bold", size = 11),
+    plot.title = element_text(face = "bold")
+  )
+```
+
+---
+
+## What Does the Data Show?
+
+An empirical evaluation of Florida's census tracts reveals several distinct geographic patterns and correlations:
+
+1. **Strong Link Between Education and Income**: Across all census tracts, there is a strong positive correlation ($r = 0.70$) between bachelor's degree attainment and median household income. Tracts where a large majority of adults hold degrees consistently report median household incomes well exceeding \$100,000.
+2. **Geographic Distribution of Income and Education**: 
+   - High-income and high-education tracts heavily cluster in coastal communities (such as coastal Sarasota, coastal Collier, and coastal Palm Beach) as well as planned suburban corridors around Orlando, Tampa, and Jacksonville.
+   - Lower median income and lower bachelor's degree attainment are concentrated in inland rural agricultural tracts (such as in Hendry, Hardee, and DeSoto counties) and in select urban cores.
+3. **Demographic Group Patterns**:
+   - **Asian**: Higher percentages of Asian residents in a tract show positive correlations with both median household income ($r = 0.21$) and educational attainment ($r = 0.29$). High-percentage Asian tracts cluster around major university centers (e.g., Gainesville, East Orlando near UCF, Tallahassee) and suburban tech/medical hubs.
+   - **Black**: Tracts with higher percentages of Black residents show negative correlations with median household income ($r = -0.34$) and bachelor's degree attainment ($r = -0.35$). These tracts are geographically concentrated in historically distinct neighborhoods within metropolitan areas (such as Jacksonville, Miami, and Tampa) as well as specific rural agricultural areas in North and Central Florida.
+   - **Hispanic / Latino**: Statewide correlations between % Hispanic population and income ($r = -0.08$) and education ($r = -0.11$) are near zero. This reflects significant internal diversity across Florida's Hispanic communities: tracts in areas like Doral and Weston exhibit high median incomes and bachelor's degree rates, while tracts in South Dade and agricultural regions reflect lower median incomes.
+4. **Correlation vs. Causation**: These tract-level correlations describe neighborhood-level associations rather than individual-level causes. Differences across tracts reflect a combination of historical settlement patterns, regional economic bases, and housing costs.

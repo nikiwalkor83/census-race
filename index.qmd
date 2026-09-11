@@ -70,7 +70,7 @@ Use the radio buttons in the upper right to toggle which demographic shift color
 #| echo: false
 
 leaflet(fl_map, width = "100%", height = "540px") |>
-  addTiles() |>
+  addProviderTiles(providers$Esri.WorldGrayCanvas) |>
   addPolygons(
     group = "Hispanic Change",
     fillColor = ~pal_hisp(diff_hisp),
