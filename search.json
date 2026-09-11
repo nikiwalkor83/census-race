@@ -7,6 +7,41 @@
     "text": "About this site"
   },
   {
+    "objectID": "analysis.html",
+    "href": "analysis.html",
+    "title": "Income, Education, and Race Across Florida Census Tracts",
+    "section": "",
+    "text": "The interactive map below allows you to explore how median household income, educational attainment, and racial/ethnic compositions vary across Florida’s census tracts.\nUse the radio buttons in the top-right corner to toggle layers. Hover over any census tract to inspect its specific figures."
+  },
+  {
+    "objectID": "analysis.html#geographic-patterns-across-florida-census-tracts",
+    "href": "analysis.html#geographic-patterns-across-florida-census-tracts",
+    "title": "Income, Education, and Race Across Florida Census Tracts",
+    "section": "",
+    "text": "The interactive map below allows you to explore how median household income, educational attainment, and racial/ethnic compositions vary across Florida’s census tracts.\nUse the radio buttons in the top-right corner to toggle layers. Hover over any census tract to inspect its specific figures."
+  },
+  {
+    "objectID": "analysis.html#comparing-raceethnicity-with-household-income",
+    "href": "analysis.html#comparing-raceethnicity-with-household-income",
+    "title": "Income, Education, and Race Across Florida Census Tracts",
+    "section": "Comparing Race/Ethnicity with Household Income",
+    "text": "Comparing Race/Ethnicity with Household Income\nThe scatterplots below examine how tract-level racial and ethnic compositions correlate with median household income across Florida census tracts. Each point represents one tract, and the blue line shows the linear trend."
+  },
+  {
+    "objectID": "analysis.html#comparing-raceethnicity-with-educational-attainment",
+    "href": "analysis.html#comparing-raceethnicity-with-educational-attainment",
+    "title": "Income, Education, and Race Across Florida Census Tracts",
+    "section": "Comparing Race/Ethnicity with Educational Attainment",
+    "text": "Comparing Race/Ethnicity with Educational Attainment\nThe scatterplots below examine the relationship between demographic compositions and educational attainment, measured as the percentage of adults age 25 and older with a bachelor’s degree or higher."
+  },
+  {
+    "objectID": "analysis.html#what-does-the-data-show",
+    "href": "analysis.html#what-does-the-data-show",
+    "title": "Income, Education, and Race Across Florida Census Tracts",
+    "section": "What Does the Data Show?",
+    "text": "What Does the Data Show?\nAn empirical evaluation of Florida’s census tracts reveals several distinct geographic patterns and correlations:\n\nStrong Link Between Education and Income: Across all census tracts, there is a strong positive correlation (\\(r = 0.70\\)) between bachelor’s degree attainment and median household income. Tracts where a large majority of adults hold degrees consistently report median household incomes well exceeding $100,000.\nGeographic Distribution of Income and Education:\n\nHigh-income and high-education tracts heavily cluster in coastal communities (such as coastal Sarasota, coastal Collier, and coastal Palm Beach) as well as planned suburban corridors around Orlando, Tampa, and Jacksonville.\nLower median income and lower bachelor’s degree attainment are concentrated in inland rural agricultural tracts (such as in Hendry, Hardee, and DeSoto counties) and in select urban cores.\n\nDemographic Group Patterns:\n\nAsian: Higher percentages of Asian residents in a tract show positive correlations with both median household income (\\(r = 0.21\\)) and educational attainment (\\(r = 0.29\\)). High-percentage Asian tracts cluster around major university centers (e.g., Gainesville, East Orlando near UCF, Tallahassee) and suburban tech/medical hubs.\nBlack: Tracts with higher percentages of Black residents show negative correlations with median household income (\\(r = -0.34\\)) and bachelor’s degree attainment (\\(r = -0.35\\)). These tracts are geographically concentrated in historically distinct neighborhoods within metropolitan areas (such as Jacksonville, Miami, and Tampa) as well as specific rural agricultural areas in North and Central Florida.\nHispanic / Latino: Statewide correlations between % Hispanic population and income (\\(r = -0.08\\)) and education (\\(r = -0.11\\)) are near zero. This reflects significant internal diversity across Florida’s Hispanic communities: tracts in areas like Doral and Weston exhibit high median incomes and bachelor’s degree rates, while tracts in South Dade and agricultural regions reflect lower median incomes.\n\nCorrelation vs. Causation: These tract-level correlations describe neighborhood-level associations rather than individual-level causes. Differences across tracts reflect a combination of historical settlement patterns, regional economic bases, and housing costs."
+  },
+  {
     "objectID": "index.html",
     "href": "index.html",
     "title": "Florida Census Demographics (2000–2020)",
